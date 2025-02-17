@@ -1,0 +1,13 @@
+[project]
+name = "eyerisai"
+version = "0.1.0"
+description = "An AI powered camera and event detection system"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "ollama>=0.4.7",
+    "opencv-python-headless>=4.11.0.86",
+    "pillow>=11.1.0",
+    "pyttsx3>=2.98",
+    "requests>=2.32.3",
+]
