@@ -46,18 +46,21 @@ There are many potential applications of an AI enabled camera system. You're ima
 
 ### Hospital Fall Detection
 
+Here's an example of the detecting a patient falling from a hospital bed *(to simulate this event, I used a virtual webcam to feed a youtube video of a commercial for a fall mat to EyerisAI)*. I used a prompt to tell the AI that it was a fall detection system and should report and incidents that it detected:
+
 ![fall-detection-image](images/fall-detection_large.gif)
 
-
-Email Alert example:
+The resulting email alert that was sent in response to the AI determining that a fall event had occurred:
 
 ![fall-detection-email-alert](images/fall-dectection-alert.png)
 
-### Home Security 
+### Home Security Monitoring
+
+In this example, I captured myself entering my office (wearing a headlamp to obscure my face like). I provided a prompt to the AI telling it that it was a security camera and it was to watch for and alert when it detected any activity while I was out of town: 
 
 ![home-security-image](images/home-security_large.gif)
 
-Email Alert example:
+The email alert that it send me in response to detecting a potential intruder:
 
 ![home-secuirty-alert](images/home-secuirty-alert.png)
 
@@ -156,4 +159,23 @@ uv run EyerisAI.py
 The images where motion was detected are PNG images named after their date-time stamp and located in the ***captures** directory in the project folder.
 
 The detection log that captures details about the even, such as the date/time, model that was used and the AI generated description of the image event are in JSONL format and are available in the ***'captures/motion_events.jsonl'*** file.
+
+Example Log entry:
+
+```json
+{
+  "timestamp": "2025-02-17T13:51:15.599307",
+  "image_path": "captures/capture_2025-02-17_13-51-08.png",
+  "description": "⚠️ SECURITY ALERT ⚠️\n\nTime: 15:41:06\nDate: 02/27/2023\nLocation: Living Room\nCamera: CAM_01\n\nPOTENTIAL INTRUDER DETECTED\n- Subject wearing dark clothing\n- Using headlamp with bright LED light\n- Light appears to be deliberately obscuring facial features\n- Subject's movement detected in living room area\n\n",
+  "camera": {
+    "id": 0,
+    "resolution": "1920x1080"
+  },
+  "motion_detection": {
+    "min_area": 700,
+    "threshold": 50
+  },
+  "model": "moondream"
+}
+```
 
