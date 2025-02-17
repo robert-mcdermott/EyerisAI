@@ -15,10 +15,17 @@ EyerisAI (pronounced "IrisAI", 👁️+🤖) is a simple project to couple a sta
 ![fall-detection-image](images/fall-detection_large.gif)
 
 
+Email Alert example:
+
+![fall-detection-email-alert](images/fall-dectection-alert.png)
+
 ### Home Security 
 
 ![home-security-image](images/home-security_large.gif)
 
+Email Alert example:
+
+![home-secuirty-alert](images/home-secuirty-alert.png)
 
 ## Install
 
