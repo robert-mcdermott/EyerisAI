@@ -1,18 +1,21 @@
 # EyerisAI.py   
-import os
-import time
-from datetime import datetime
-import cv2
-import pyttsx3
-import numpy as np
-from ollama import Client
+# Standard library imports
+import base64
 import configparser
 import json
-from pathlib import Path
+import os
 import smtplib
-from email.mime.text import MIMEText
+import time
+from datetime import datetime
 from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from pathlib import Path
+# Third-party imports
+import cv2
+import numpy as np
+import pyttsx3
+import requests
 
 def load_config():
     """
@@ -31,7 +34,6 @@ def load_config():
         'ai_description': config.getboolean('General', 'ai_description'),
         'instance_name': config.get('General', 'instance_name', fallback='Motion Detector'),
         'ai': {
-            'api_type': config.get('AI', 'api_type'),  # 'ollama' or 'openai'
             'base_url': config.get('AI', 'base_url'),
             'model': config.get('AI', 'model'),
             'prompt': config.get('AI', 'prompt'),
@@ -109,64 +111,46 @@ def describe_image(image) -> str:
     Describe image using configured AI service (Ollama or OpenAI-compatible API)
     """
     api_config = CONFIG['ai']
+    # Convert image to base64
+    image_b64 = base64.b64encode(image).decode('utf-8')
     
-    if api_config['api_type'] == 'ollama':
-        # Use direct Ollama client
-        ollama_c = Client(host=api_config['base_url'])
-        stream = ollama_c.generate(
-            model=api_config['model'],
-            prompt=api_config['prompt'],
-            images=[image],
-            stream=True
-        )
-        response = ""
-        for chunk in stream:
-            response += chunk['response']
-        return response
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': f"Bearer {api_config['api_key']}"
+    }
     
-    elif api_config['api_type'] == 'openai':
-        import requests
-        import base64
-        
-        # Convert image to base64
-        image_b64 = base64.b64encode(image).decode('utf-8')
-        
-        headers = {
-            'Content-Type': 'application/json',
-            'Authorization': f"Bearer {api_config['api_key']}"
-        }
-        
-        payload = {
-            'model': api_config['model'],
-            'messages': [
-                {
-                    'role': 'user',
-                    'content': [
-                        {'type': 'text', 'text': api_config['prompt']},
-                        {'type': 'image_url', 
-                         'image_url': {
-                             'url': f"data:image/jpeg;base64,{image_b64}"
-                         }
+    payload = {
+        'model': api_config['model'],
+        'messages': [
+            {
+                'role': 'user',
+                'content': [
+                    {
+                        'type': 'text',
+                        'text': api_config['prompt']
+                    },
+                    {
+                        'type': 'image_url',
+                        'image_url': {
+                            'url': f"data:image/jpeg;base64,{image_b64}"
                         }
-                    ]
-                }
-            ],
-            'max_tokens': api_config.get('max_tokens', 300)
-        }
-        
-        response = requests.post(
-            f"{api_config['base_url']}/v1/chat/completions",
-            headers=headers,
-            json=payload
-        )
-        
-        if response.status_code == 200:
-            return response.json()['choices'][0]['message']['content']
-        else:
-            raise Exception(f"API request failed: {response.text}")
+                    }
+                ]
+            }
+        ],
+        'max_tokens': api_config.get('max_tokens', 300)
+    }
     
+    response = requests.post(
+        f"{api_config['base_url']}/v1/chat/completions",
+        headers=headers,
+        json=payload
+    )
+    
+    if response.status_code == 200:
+        return response.json()['choices'][0]['message']['content']
     else:
-        raise ValueError(f"Unsupported API type: {api_config['api_type']}")
+        raise Exception(f"API request failed: {response.text}")
 
 def detect_motion(frame1, frame2):
     """
