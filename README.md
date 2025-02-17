@@ -10,6 +10,15 @@ EyerisAI (pronounced "IrisAI", 👁️+🤖) is a simple project to couple a sta
 ## Potential Use Cases
 
 
+### Hospital Fall Detection
+
+![fall-detection-image](images/fall-detection_large_b.gif)
+
+
+### Home Security 
+
+![home-security-image](images/home-security_large_b.gif)
+
 
 ## Install
 
