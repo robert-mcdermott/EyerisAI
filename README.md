@@ -12,12 +12,12 @@ EyerisAI (pronounced "IrisAI", 👁️+🤖) is a simple project to couple a sta
 
 ### Hospital Fall Detection
 
-![fall-detection-image](images/fall-detection_large_b.gif)
+![fall-detection-image](images/fall-detection_large.gif)
 
 
 ### Home Security 
 
-![home-security-image](images/home-security_large_b.gif)
+![home-security-image](images/home-security_large.gif)
 
 
 ## Install
