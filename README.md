@@ -1,3 +1,5 @@
+![EyerisAI-Mac-M4-Mini](images/EyerisAI-Mac-M4-Mini-small.png)
+
 # EyerisAI 🧿
 AI powered camera and event detection system
 
