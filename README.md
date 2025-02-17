@@ -5,10 +5,44 @@ AI powered camera and event detection system
 
 ## What is EyerisAI?
 
-EyerisAI (pronounced "IrisAI", 👁️+🤖) is a simple project to couple a standard computer, webcam, computer vision and multi-modal LLM (💻 + 📷 + 👁️ + 🤖) to create a visual system that can be configured to "watch" something for any events, and when an event is detected, have generative AI examine what's going on and log, speak out (TTS) and optionally send and alert (currently just email) describing the event. You configure a prompt to tell the AI what to look for and how to respond. It's essentially an AI enabled video camera. It's working in it's current state but still needs improvements, and in the future can possibly be improved to not only log, speak and send email alerts, but perhaps call webhooks, execute commands or take other actions such as interacting with your home automation system based on what it's seeing.
+EyerisAI (pronounced “IrisAI,”, 👁️ + 🤖) is a project to create an AI-powered camera and event detection system that uses a computer, webcam, computer vision, and a multi-modal LLM (💻 + 📷 + 👁️ + 🤖) to “watch” for specific events in real time. When it detects an event, EyerisAI uses generative AI to analyze the scene, log the findings, and respond, either by speaking aloud (TTS) or sending an email alert. You simply configure a prompt that tells the AI what to look for and how to react.
+
+The projects is currently functional but still evolving, EyerisAI can be made more versatile in the future, potentially integrating with webhooks, running commands, or interacting with home automation systems. Think of it as an intelligent, customizable surveillance tool that not only watches but actively interprets and responds to what it sees.
 
 ## Potential Use Cases
 
+There are many potential applications of an AI enabled camera system. You're imagination is the limit. Here are some potential focus areas and their use cases:
+
+**Healthcare Monitoring**
+ - Patient fall detection in medical facilities
+ - Elder care movement monitoring
+ - Behavioral health observation
+ - Emergency response triggering
+
+**Security Applications**
+- Intelligent home surveillance
+- Business premises monitoring
+- Weapon detection
+- Suspicious activity alerts
+
+**Family Care**
+- Smart baby monitoring
+- Child safety oversight
+- Pet behavior tracking
+- Elderly care assistance
+
+**Professional Monitoring**
+- Workplace safety compliance
+- Construction site supervision
+- Equipment monitoring
+- Quality control observation
+
+**Research & Analysis**
+- Wildlife observation
+- Experimental observation and logging
+
+
+## Examples
 
 ### Hospital Fall Detection
 
@@ -96,6 +130,10 @@ prompt = You are a home security camera that has detected motion. The areas wher
 ```
 
 There are other things that can be configured or adjusted, such as sending emails, that aren't covered here but should be self explanatory.
+
+## Ollama
+
+If you will be running the AI inference locally on the system with the camera and running EyerisAI, you'll need to first have Ollama running with the models that you'll be using downloaed. I'm not going to cover this in detail here but, I provide detailed instructions in my article ["LLM Zero-to-Hero with Ollama"](https://blog.cubed.run/llm-zero-to-hero-with-ollama-913e50d6b7f0) 
 
 ## Running 
 
