@@ -1,9 +1,12 @@
 # EyerisAI 🧿
 AI powered camera and event detection system
 
-## What is EyerisAI
+## What is EyerisAI?
 
-EyerisAI (pronounced "IrisAI", 👁️+🤖) is a simple project use couple a standard computer, webcam, computer vision and multi-modal LLM (💻 + 📷 + 👁️ + 🤖) to create a visual system that can configured to "watch" something for any events, and when an event is detected have generative AI examine what's going on and to log, speak out (TTS) and optionally send and alert (currently just email) describing the event. You configure a prompt to tell the AI what to look for and how to respond. It's essentially an AI enabled video camera. It's working in it's current state but still needs improvements, and in the future can possibly be improved to not only log, speak and send email alerts, but perhaps call webhooks, execute commands or take other actions such as interacting with your home automation system based on what it's seeing.
+EyerisAI (pronounced "IrisAI", 👁️+🤖) is a simple project to couple a standard computer, webcam, computer vision and multi-modal LLM (💻 + 📷 + 👁️ + 🤖) to create a visual system that can be configured to "watch" something for any events, and when an event is detected, have generative AI examine what's going on and log, speak out (TTS) and optionally send and alert (currently just email) describing the event. You configure a prompt to tell the AI what to look for and how to respond. It's essentially an AI enabled video camera. It's working in it's current state but still needs improvements, and in the future can possibly be improved to not only log, speak and send email alerts, but perhaps call webhooks, execute commands or take other actions such as interacting with your home automation system based on what it's seeing.
+
+## Potential Use Cases
+
 
 
 ## Install
