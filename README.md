@@ -7,7 +7,7 @@ AI powered camera and event detection system
 
 EyerisAI (pronounced “IrisAI”, 👁️ + 🤖) is a project to create an AI-powered camera and event detection system that uses a computer, webcam, computer vision, and a multi-modal LLM (💻 + 📷 + 👁️ + 🤖) to “watch” for specific events in real time. When it detects an event, EyerisAI uses generative AI to analyze the scene, log the findings, and respond, either by speaking aloud (TTS) or sending an email alert. You simply configure a prompt that tells the AI what to look for and how to react.
 
-The projects is currently functional but still evolving, EyerisAI can be made more versatile in the future, potentially integrating with webhooks, running commands, or interacting with home automation systems. Think of it as an intelligent, customizable surveillance tool that not only watches but actively interprets and responds to what it sees.
+The projects is currently functional but still evolving, EyerisAI can be made more versatile in the future, potentially integrating with webhooks, running commands, or interacting with home automation systems *(send me a PR if you are interested in helping improve it)*. Think of it as an intelligent, customizable surveillance tool that not only watches but actively interprets and responds to what it sees.
 
 ## Potential Use Cases
 
