@@ -56,13 +56,27 @@ The resulting email alert that was sent in response to the AI determining that a
 
 ### Home Security Monitoring
 
-In this example, I captured myself entering my office (wearing a headlamp to obscure my face like). I provided a prompt to the AI telling it that it was a security camera and it was to watch for and alert when it detected any activity while I was out of town: 
+In this example, I captured myself entering my office (wearing a headlamp to obscure my face). I provided a prompt to the AI telling it that it was a security camera and it was to watch for and alert when it detected any activity while I was out of town: 
 
 ![home-security-image](images/home-security_large.gif)
 
 The email alert that it send me in response to detecting a potential intruder:
 
 ![home-secuirty-alert](images/home-secuirty-alert.png)
+
+## Hardware and Setup used for testing and development
+
+For the development and testing of this system I'm using the following setup:
+
+- Apple M4 Mac Mini, 16GB RAM (base model)
+- Logitech C920 HD Pro Webcam
+- Ollama 0.5.11
+- Moondream2 local LLM
+- LiteLLM Proxy (**\*optional\***, not need if only using local models via Ollama)
+
+The above setup will run complexly locally. I also tested integrating with OpenAI models (gpt4o) via Azure AI, and Anthropic (Claude 3.5 Sonnet) via Amazon AWS Bedrock. Both the OpenAI and Anthropic models were accessed via LiteLLM proxy running locally. See my article on how to setup LiteLLM if interested: [Centralizing Multiple AI Services with LiteLLM Proxy](https://robert-mcdermott.medium.com/centralizing-multi-vendor-llm-services-with-litellm-9874563f3062) 
+
+If you are going to run a private LLM like Moondream locally, a GPU is recommended, but not required. Moondream is only 1.8B parameters and requires only 4.5GB to run, so it will technically run without a GPU, but it will take it a minute (guess) to process a detection using just the CPU.  If you are using an OpenAI compatible API located remotely, then a GPU is not used, so even a very low powered system (IOT device?) can be used as an EyerisAI camera node and function well.
 
 ## Install
 
@@ -166,7 +180,7 @@ Example Log entry:
 {
   "timestamp": "2025-02-17T13:51:15.599307",
   "image_path": "captures/capture_2025-02-17_13-51-08.png",
-  "description": "⚠️ SECURITY ALERT ⚠️\n\nTime: 15:41:06\nDate: 02/27/2023\nLocation: Living Room\nCamera: CAM_01\n\nPOTENTIAL INTRUDER DETECTED\n- Subject wearing dark clothing\n- Using headlamp with bright LED light\n- Light appears to be deliberately obscuring facial features\n- Subject's movement detected in living room area\n\n",
+  "description": "⚠️ SECURITY ALERT ⚠️\n\nTime: 13:51:08\nDate: 02/17/2025\nLocation: Living Room\n\nPOTENTIAL INTRUDER DETECTED\n- Subject wearing dark clothing\n- Using headlamp with bright LED light\n- Light appears to be deliberately obscuring facial features\n- Subject's movement detected in living room area\n\n",
   "camera": {
     "id": 0,
     "resolution": "1920x1080"
