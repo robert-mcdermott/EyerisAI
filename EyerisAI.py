@@ -33,6 +33,8 @@ def load_config():
         'log_file': config.get('General', 'log_file'),
         'ai_description': config.getboolean('General', 'ai_description'),
         'instance_name': config.get('General', 'instance_name', fallback='Motion Detector'),
+        'ai_alert_filtering': config.getboolean('General', 'ai_alert_filtering', fallback=False),
+        'alert_criteria': config.get('General', 'alert_criteria', fallback='noteworthy events'),
         'ai': {
             'base_url': config.get('AI', 'base_url'),
             'model': config.get('AI', 'model'),
@@ -106,19 +108,32 @@ def tts(text):
     engine.say(text)
     engine.runAndWait()
 
-def describe_image(image) -> str:
+def describe_image(image) -> dict:
     """
     Describe image using configured AI service (Ollama or OpenAI-compatible API)
+    Returns a dictionary with 'should_alert' (bool) and 'description' (str)
     """
     api_config = CONFIG['ai']
     # Convert image to base64
     image_b64 = base64.b64encode(image).decode('utf-8')
-    
+
+    # Build prompt based on whether AI filtering is enabled
+    if CONFIG['ai_alert_filtering']:
+        prompt_text = f"""{api_config['prompt']}
+
+After describing what you see, make a decision: Should this trigger an alert?
+Alert criteria: Only alert if you detect {CONFIG['alert_criteria']}
+
+Respond in this exact JSON format:
+{{"should_alert": true/false, "description": "your description here"}}"""
+    else:
+        prompt_text = api_config['prompt']
+
     headers = {
         'Content-Type': 'application/json',
         'Authorization': f"Bearer {api_config['api_key']}"
     }
-    
+
     payload = {
         'model': api_config['model'],
         'messages': [
@@ -127,7 +142,7 @@ def describe_image(image) -> str:
                 'content': [
                     {
                         'type': 'text',
-                        'text': api_config['prompt']
+                        'text': prompt_text
                     },
                     {
                         'type': 'image_url',
@@ -140,15 +155,42 @@ def describe_image(image) -> str:
         ],
         'max_tokens': api_config.get('max_tokens', 300)
     }
-    
+
     response = requests.post(
         f"{api_config['base_url']}/v1/chat/completions",
         headers=headers,
         json=payload
     )
-    
+
     if response.status_code == 200:
-        return response.json()['choices'][0]['message']['content']
+        content = response.json()['choices'][0]['message']['content']
+
+        # If AI filtering is enabled, try to parse JSON response
+        if CONFIG['ai_alert_filtering']:
+            try:
+                # Try to extract JSON from the response
+                # Some models may add extra text before/after JSON
+                json_start = content.find('{')
+                json_end = content.rfind('}') + 1
+                if json_start != -1 and json_end > json_start:
+                    json_str = content[json_start:json_end]
+                    parsed = json.loads(json_str)
+                    return {
+                        'should_alert': parsed.get('should_alert', False),
+                        'description': parsed.get('description', content)
+                    }
+                else:
+                    # Fallback: if no JSON found, don't alert
+                    print(f"Warning: Could not parse JSON from AI response. Response: {content}")
+                    return {'should_alert': False, 'description': content}
+            except json.JSONDecodeError as e:
+                print(f"Warning: Failed to parse JSON from AI response: {e}")
+                print(f"Response was: {content}")
+                # Fallback: if JSON parsing fails, don't alert to avoid false positives
+                return {'should_alert': False, 'description': content}
+        else:
+            # AI filtering disabled, always alert
+            return {'should_alert': True, 'description': content}
     else:
         raise Exception(f"API request failed: {response.text}")
 
@@ -320,26 +362,43 @@ def run_motion_detection():
                     # Draw detection information on the frame
                     annotated_frame = draw_detection_info(frame2, contours, timestamp)
 
-                    # Save the annotated image
-                    cv2.imwrite(str(image_path), annotated_frame)
-                    im = open(image_path, 'rb').read()
+                    # Get AI analysis of the detected motion
                     if CONFIG['ai_description']:
-                        description = describe_image(im)
+                        # Save temporary image for AI analysis
+                        cv2.imwrite(str(image_path), annotated_frame)
+                        im = open(image_path, 'rb').read()
+                        ai_result = describe_image(im)
+                        should_alert = ai_result['should_alert']
+                        description = ai_result['description']
+
+                        # If AI filtering is enabled and AI says don't alert, skip logging/alerting
+                        if CONFIG['ai_alert_filtering'] and not should_alert:
+                            print(f"Motion detected but not alert-worthy: {description}")
+                            # Delete the temporary image since we're not alerting
+                            os.remove(image_path)
+                            last_detection_time = current_time
+                            continue
                     else:
+                        # No AI description, treat as alert-worthy
+                        should_alert = True
                         description = "Motion detected"
+                        cv2.imwrite(str(image_path), annotated_frame)
+
+                    # If we get here, this is an alert-worthy event
+                    print(f"ALERT: {description}")
 
                     # Log the event
                     event = log_event(image_path, description)
-                    
+
                     if CONFIG['ai_description']:
                         print(json.dumps(event, indent=2))
-                    
+
                     if CONFIG['tts']['enabled']:
                         tts(description)
-                    
+
                     # Send email alert if enabled
                     send_email_alert(str(image_path), description, timestamp)
-                    
+
                     last_detection_time = current_time
             
             # Update frame1

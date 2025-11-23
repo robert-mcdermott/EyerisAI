@@ -5,9 +5,11 @@ AI powered camera and event detection system
 
 ## What is EyerisAI?
 
-EyerisAI (pronounced “IrisAI”, 👁️ + 🤖) is a project to create an AI-powered camera and event detection system that uses a computer, webcam, computer vision, and a multi-modal LLM (💻 + 📷 + 👁️ + 🤖) to “watch” for specific events in real time. When it detects an event, EyerisAI uses generative AI to analyze the scene, log the findings, and respond, either by speaking aloud (TTS) or sending an email alert. You simply configure a prompt that tells the AI what to look for and how to react.
+EyerisAI (pronounced "IrisAI", 👁️ + 🤖) is a project to create an AI-powered camera and event detection system that uses a computer, webcam, computer vision, and a multi-modal LLM (💻 + 📷 + 👁️ + 🤖) to "watch" for specific events in real time. When it detects an event, EyerisAI uses generative AI to analyze the scene, log the findings, and respond, either by speaking aloud (TTS) or sending an email alert. You simply configure a prompt that tells the AI what to look for and how to react.
 
-The projects is currently functional but still evolving, EyerisAI can be made more versatile in the future, potentially integrating with webhooks, running commands, or interacting with home automation systems *(send me a PR if you are interested in helping improve it)*. Think of it as an intelligent, customizable surveillance tool that not only watches but actively interprets and responds to what it sees.
+**Smart False Alarm Reduction:** EyerisAI features AI-based event filtering that dramatically reduces false alarms. While computer vision detects motion (shadows, wind, pets), the AI evaluates each detection to determine if it matches your specified criteria (e.g., "humans", "person falling", "vehicles"). Only confirmed events are logged, saved, or trigger alerts - eliminating the noise of irrelevant motion.
+
+The project is currently functional but still evolving. EyerisAI can be made more versatile in the future, potentially integrating with webhooks, running commands, or interacting with home automation systems *(send me a PR if you are interested in helping improve it)*. Think of it as an intelligent, customizable surveillance tool that not only watches but actively interprets and responds to what it sees.
 
 ## Potential Use Cases
 
@@ -101,9 +103,52 @@ uv sync
 
 ## Configure
 
-Edit the ***config.ini*** file to suit you needs. Here are some of the most likely variables you'll want to change:
+Edit the ***config.ini*** file to suit your needs. Here are some of the most likely variables you'll want to change:
 
-Update the name of this camera, where it's located, what it's purpose it or something to identify it:
+### Reducing False Alarms with AI Filtering
+
+One of the most powerful features of EyerisAI is **AI-based alert filtering**, which dramatically reduces false alarms. When enabled, the system uses a two-stage approach:
+
+1. **Computer Vision** detects any motion (fast, but prone to false positives)
+2. **AI Analysis** evaluates if the motion matches your criteria (smart filtering)
+
+Enable AI filtering and specify what to alert on:
+
+```ini
+[General]
+ai_alert_filtering = true
+alert_criteria = humans or people
+```
+
+**Common Alert Criteria Examples:**
+
+```ini
+# Home security - only alert for people
+alert_criteria = humans or people
+
+# Fall detection - only alert for falls
+alert_criteria = a person falling or on the ground
+
+# Vehicle monitoring
+alert_criteria = vehicles, cars, or trucks
+
+# Pet monitoring
+alert_criteria = dogs or cats
+
+# Package delivery
+alert_criteria = delivery person or packages
+
+# Specific threat detection
+alert_criteria = weapons or suspicious activity
+```
+
+**How it works:** When motion is detected, the system captures the frame and asks the AI: "Does this image contain [your alert criteria]?" Only if the AI confirms a match will the event be logged, saved, and trigger alerts. False alarms (shadows, tree movement, lighting changes) are discarded automatically.
+
+**Note:** Set `ai_alert_filtering = false` to disable this feature and alert on all motion detections (original behavior).
+
+### Basic Configuration
+
+Update the name of this camera, where it's located, what its purpose is, or something to identify it:
 
 ```ini
 [General]
@@ -132,7 +177,9 @@ If you want the system to speak aloud the AI's response (description of what it 
 enabled = false
 ```
 
-In the *AI* section, you select that LLM model that you want to use. If you want use a local model, make sure that ollama is install and that you have pulled the model that use want to use. "Moondream" is a good local model to start with. EyerisAI can work with any OpenAI compatible API (like LiteLLM Proxy) and multi-modal LLM. The *prompt* variable is important, that's were you provide the AI with instructions what you want the AI to examine in the image, or how to act, respond. 
+In the *AI* section, you select the LLM model that you want to use. If you want to use a local model, make sure that Ollama is installed and that you have pulled the model you want to use. "Moondream" is a good local model to start with. EyerisAI can work with any OpenAI compatible API (like LiteLLM Proxy) and multi-modal LLM.
+
+The *prompt* variable is your base instruction for the AI - describe what you want the AI to examine in the image. When **ai_alert_filtering** is enabled, the system automatically extends your prompt with instructions to evaluate the image against your **alert_criteria** and respond in JSON format. You don't need to modify the prompt for filtering to work.
 
 ```ini
 [AI]
@@ -143,7 +190,9 @@ base_url = http://localhost:11434
 #model = gpt4o
 #base_url = https://api.openai.com/v1
 api_key = sk-12345
-prompt = You are a home security camera that has detected motion. The areas where motion was detected are indicated with magenta contours. Examine the image and report what activity you see, especially any humans visible.
+# Base prompt - alert_criteria will be automatically added when filtering is enabled
+prompt = You are a security camera system that has detected motion. The areas where motion was detected are indicated with magenta contours. Examine the image carefully and describe what you see.
+max_tokens = 300
 ```
 
 There are other things that can be configured or adjusted, such as sending emails, that aren't covered here but should be self explanatory.
@@ -170,11 +219,21 @@ uv run EyerisAI.py
 
 ## Output
 
-The images where motion was detected are PNG images named after their date-time stamp and located in the ***captures** directory in the project folder.
+### Images and Logs
 
-The detection log that captures details about the even, such as the date/time, model that was used and the AI generated description of the image event are in JSONL format and are available in the ***'captures/motion_events.jsonl'*** file.
+When **alert-worthy events** are detected (or all motion if AI filtering is disabled), the system saves:
 
-Example Log entry:
+- **Images:** PNG files named with date-time stamps in the ***captures*** directory
+- **Event Log:** Details about each alert in JSONL format in ***captures/motion_events.jsonl***
+
+When **AI filtering is enabled**, non-alert-worthy motion is printed to the console but NOT saved or logged:
+```
+Motion detected but not alert-worthy: I see a tree branch swaying in the wind
+```
+
+This means your captures directory only contains genuinely important events, and your log file isn't cluttered with false alarms.
+
+### Example Log Entry:
 
 ```json
 {
